@@ -8,7 +8,16 @@
         "**/flutter/ephemeral": true,
         "**/Flutter/ephemeral": true,
         "**/.symlinks": true,
-        "**/.plugin_symlinks": true
+        "**/.plugin_symlinks": true,
+        "src/__pycache__": true,
+        "src/asr/__pycache__": true,
+        "src/llm/__pycache__": true,
+        "src/tts/__pycache__": true
     },
-    "hide-files.files": []
+    "hide-files.files": [
+        "src/__pycache__",
+        "src/asr/__pycache__",
+        "src/llm/__pycache__",
+        "src/tts/__pycache__"
+    ]
 }

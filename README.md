@@ -1,5 +1,25 @@
 # `vaf-alpha`
 
+## Model Overview
+
+**Quality rankings:** 🔵 excellent/SOTA 🟢 very good 🟡 okay 🟠 bad 🔴 critical
+
+| Task | Provider  | Model                  | Cost                               | E2E Latency | Notes |
+| ---- | --------- | ---------------------- | ---------------------------------- | ----------- | ----- |
+| ASR  | DeepInfra | 🟢 Voxtral-Mini-3B-2507 | $0.0030/min                        | 🔴 ~2s       |       |
+| ASR  | Mistral   | 🟢 voxtral-mini-latest  | $0.001/min + $0.04/M output tokens | 🟠 ~1s       |       |
+| TTS  | DeepInfra | 🟢 Kokoro-82M           | 🔵 $0.7440/M characters             | 🔴 ~1.3–1.6s |       |
+| LLM  | Cerebras  | 🟡 gpt-oss-120b         | $0.35/M tokens                     | 🟢 ~0.4s     |       |
+
+*Info (especially pricing) may be inaccurate or outdated!*
+
+Pricing links:z
+
+- [Mistral](https://mistral.ai/pricing#api)
+- [InWorld](https://inworld.ai/pricing)
+- [Cerebras](https://www.cerebras.ai/pricing)
+- [DeepInfra](https://deepinfra.com/pricing)
+
 ## Benchmarks
 
 ### ASR
