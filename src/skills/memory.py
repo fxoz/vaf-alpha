@@ -1,5 +1,5 @@
 from ._base import Skill
-from ._safety import validate_name
+from ._security import validate_name
 
 import os
 import pathlib
