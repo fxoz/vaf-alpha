@@ -3,13 +3,11 @@ import time
 
 import httpx
 
-from .base import AsrProvider
 import utils
+from ._base import AsrProvider
 
 
 class MistralAsr(AsrProvider):
-    provider_name = "mistral"
-
     def __init__(self):
         self.url = "https://api.mistral.ai/v1/audio/transcriptions"
 
