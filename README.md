@@ -14,8 +14,8 @@ End to end latency includes processing time. Ranges can vary significantly based
 
 For TTS: if streaming is supported, latency is measured until the first audio chunk is received. If not, it's measured until the entire audio is received.
 
-| Task | Provider | Model | Cost | E2E Latency | Notes |
-| ---- | -------- | ----- | ---- | ----------- | ----- ||
+| Task | Provider   | Model                  | Cost                                 | E2E Latency  | Notes                              |
+| ---- | ---------- | ---------------------- | ------------------------------------ | ------------ | ---------------------------------- |
 | ASR  | DeepInfra  | 🟢 Voxtral-Mini-3B-2507 | 🟢 $0.0030/min                        | 🔴 2s         | Too slow                           |
 | ASR  | Mistral    | 🟢 voxtral-mini-latest  | 🟢 $0.001/min + $0.04/M output tokens | 🟡 0.45-0.9s  | Needs more quality testing         |
 | LLM  | Cerebras   | 🟡 gpt-oss-120b         | 🟢 $0.35/M tokens                     | 🔴 2.5s-3s    | SOTA TPS speeds, but high latency  |
