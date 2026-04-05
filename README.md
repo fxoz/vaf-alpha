@@ -27,17 +27,21 @@ End to end latency includes processing time. Ranges can vary significantly based
 
 For TTS: if streaming is supported, latency is measured until the first audio chunk is received. If not, it's measured until the entire audio is received.
 
-| Task | Provider   | Model                | Cost                              | E2E Latency | Notes                              |
-| ---- | ---------- | -------------------- | --------------------------------- | ----------- | ---------------------------------- |
-| ASR  | DeepInfra  | 🟢 Voxtral Mini 3B    | 🟢 $0.0030/min                     | 🔴 2s        | Too slow                           |
-| ASR  | Mistral    | 🟢 Voxtral Mini       | 🟢 $0.001/min + $0.04/M out tokens | 🟡 0.45-0.9s | Needs more quality testing         |
-| LLM  | Cerebras   | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                  | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency  |
-| LLM  | OpenRouter | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended               | 🟢 0.4-0.7s  | Good latency, but low intelligence |
-| LLM  | OpenRouter | ❔ Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.          | 🟢 0.4-0.7s  | Good latency, but low intelligence |
-| TTS  | DeepInfra  | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                 | 🔴 1.5–2.5s  | No mid-sentence language switching |
-| TTS  | SAPI5      | 🟠 Microsoft David    | 🔵 Free (local)                    | 🔵 instant   | Very fast, but robotic voice       |
-| TTS  | Async.com  | 🟢 Async Flash 1.0    | 🟠 $0.5/h                          | 🟢 0.6-0.7s  | Streamed response                  |
-| OCR  | OpenRouter | 🟢 Gemini 3.1 Flash   | 🟢 $0.00031/img approx.            | 🔴 3-3.8s    | Streamed response                  |
+<div style="overflow-x: scroll;">
+
+| Task | Provider   | Model                | Cost                              | E2E Latency | Notes                               |
+| ---- | ---------- | -------------------- | --------------------------------- | ----------- | ----------------------------------- |
+| ASR  | DeepInfra  | 🟢 Voxtral Mini 3B    | 🟢 $0.0030/min                     | 🔴 2s        | Too slow                            |
+| ASR  | Mistral    | 🟢 Voxtral Mini       | 🟢 $0.001/min + $0.04/M out tokens | 🟡 0.45-0.9s | Needs more quality testing          |
+| LLM  | Cerebras   | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                  | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency   |
+| LLM  | OpenRouter | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended               | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
+| LLM  | OpenRouter | ❔ Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.          | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
+| TTS  | DeepInfra  | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                 | 🔴 1.5–2.5s  | No mid-sentence language switching  |
+| TTS  | SAPI5      | 🟠 Microsoft David    | 🔵 Free (local)                    | 🔵 instant   | Very fast, but robotic voice        |
+| TTS  | Async.com  | 🟢 Async Flash 1.0    | 🟠 $0.5/h                          | 🟢 0.6-0.7s  | Streamed response                   |
+| OCR  | OpenRouter | 🟢 Gemini 3.1 Flash   | 🟢 $0.00031/img approx.            | 🔴 3-3.8s    | Didn't find a quicker in OpenRouter |
+
+</div>
 
 *Info (especially pricing) may be inaccurate or outdated!*
 
