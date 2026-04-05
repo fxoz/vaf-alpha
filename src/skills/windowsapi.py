@@ -6,7 +6,6 @@ from ._base import Skill
 
 def _press_key(hex_key_code: int):
     ctypes.windll.user32.keybd_event(hex_key_code, 0, 0, 0)
-    # absolutely minimal delay for this to work:
     time.sleep(0.005)
     ctypes.windll.user32.keybd_event(hex_key_code, 0, 0x0002, 0)
 

@@ -10,7 +10,7 @@ import config
 from context import Chat
 from ._base import LlmProvider, LlmResponse, ToolCall
 
-_client = httpx.Client(timeout=60.0)
+_client = httpx.Client(timeout=config.TIMEOUT_LLM_BASIC)
 
 
 class OpenRouterLlm(LlmProvider):

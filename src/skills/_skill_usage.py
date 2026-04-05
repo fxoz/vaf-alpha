@@ -1,6 +1,6 @@
 import inspect
 
-from config import SKILLS
+from config_skills import SKILLS
 
 TYPE_MAP = {
     str: "string",

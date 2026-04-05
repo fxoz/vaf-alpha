@@ -1,9 +1,11 @@
 import sys
+import traceback
 
 from rich import print
 
 import config
 import context
+import config_skills
 
 from llm._base import LlmResponse
 from llm.openrouter import OpenRouterLlm as LLM
@@ -29,16 +31,20 @@ def handle_prompt(prompt: str, chat: context.Chat) -> str:
             return final_text  # we're entirely done with this user prompt.
 
         for call in res.tool_calls:
-            assert call.name in config.TOOL_REGISTRY, (
+            assert call.name in config_skills.TOOL_REGISTRY, (
                 f"Tool {call.name} not found in registry"
             )
 
             chat.add_tool_call(
                 name=call.name, arguments=call.args, call_id=call.call_id
             )
-            fn = config.TOOL_REGISTRY[call.name]
+            fn = config_skills.TOOL_REGISTRY[call.name]
             print(f"[magenta][bold]{call.name}[/bold]{call.args}[/magenta]")
-            result = fn(**call.args)
+            try:
+                result = fn(**call.args)
+            except Exception as e:
+                result = f"Error calling tool: {e}"
+                traceback.print_exc()
             chat.add_tool_call_output(call_id=call.call_id, output=result)
 
             print(f"->[green] {result}[/green]")

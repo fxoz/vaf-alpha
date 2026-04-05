@@ -1,8 +1,13 @@
 # `vaf-alpha` Voice Assistant
 
+The goal for this project is to create a voice assistant that can perform various tasks. In the end, this codebase will probably be wrapped inside of an API, and we will have a separate client (Android, iOS, desktop, etc.) that interacts with the API. For now, however, we will focus on the core functionality of the assistant itself.
+
 - [x] **Context** of previous question(s)
 - [x] **Skills** (e.g. calendar, weather, music, etc.)
+  - [x] **Media Control** (via Windows API)
+  - [x] **OCR** (take a screenshot and analyze it)
   - [ ] **Deep Thinking** (use a better AI for complex questions and tasks)
+  - [ ] **Web Search**
   - [ ] **Spotify**
   - [ ] **Last.fm**
     - [ ] **Custom algoritm** (e.g. "play something I haven't listened to in a while")
@@ -13,24 +18,26 @@
 - [ ] **Multi-User-Support** (different users can have different skill storages etc.)
 - [ ] **API** (important, but needs time)
 
+
 ## Model Overview
 
-**Ratings:** 🔵 excellent 🟢 very good 🟡 okay 🟠 bad 🔴 critical
+**Ratings:** 🔵 excellent 🟢 very good 🟡 okay 🟠 bad 🔴 critical ❔ untested/unsure
 
 End to end latency includes processing time. Ranges can vary significantly based on input length, server load, and other factors.
 
 For TTS: if streaming is supported, latency is measured until the first audio chunk is received. If not, it's measured until the entire audio is received.
 
-| Task | Provider   | Model                  | Cost                                 | E2E Latency  | Notes                              |
-| ---- | ---------- | ---------------------- | ------------------------------------ | ------------ | ---------------------------------- |
-| ASR  | DeepInfra  | 🟢 Voxtral-Mini-3B-2507 | 🟢 $0.0030/min                        | 🔴 2s         | Too slow                           |
-| ASR  | Mistral    | 🟢 voxtral-mini-latest  | 🟢 $0.001/min + $0.04/M output tokens | 🟡 0.45-0.9s  | Needs more quality testing         |
-| LLM  | Cerebras   | 🟡 gpt-oss-120b         | 🟢 $0.35/M tokens                     | 🔴 2.5s-3s    | SOTA TPS speeds, but high latency  |
-| LLM  | OpenRouter | 🟠 gpt-oss-20b (Groq)   | 🟢 $0.1875/M blended                  | 🟢 0.4-0.7s   | Good latency, but low intelligence |
-| TTS  | DeepInfra  | 🟢 Kokoro-82M           | 🟢 $0.7440/M characters               | 🔴 1.5–2.5s   | No mid-sentence language switching |
-| TTS  | SAPI5      | 🟠 Microsoft David      | 🔵 Free (local)                       | 🔵 instant    | Very fast, but robotic voice       |
-| TTS  | Together   | 🟢 Kokoro-82M           | 🔴 $10/M chars                        | ❔ claims low | UNTESTED                           |
-| TTS  | Async.com  | 🟢 Async Flash 1.0      | 🟠 $0.5/h                             | 🟢 0.6-0.7s   | Streamed response                  |
+| Task | Provider   | Model                | Cost                              | E2E Latency | Notes                              |
+| ---- | ---------- | -------------------- | --------------------------------- | ----------- | ---------------------------------- |
+| ASR  | DeepInfra  | 🟢 Voxtral Mini 3B    | 🟢 $0.0030/min                     | 🔴 2s        | Too slow                           |
+| ASR  | Mistral    | 🟢 Voxtral Mini       | 🟢 $0.001/min + $0.04/M out tokens | 🟡 0.45-0.9s | Needs more quality testing         |
+| LLM  | Cerebras   | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                  | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency  |
+| LLM  | OpenRouter | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended               | 🟢 0.4-0.7s  | Good latency, but low intelligence |
+| LLM  | OpenRouter | ❔ Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.          | 🟢 0.4-0.7s  | Good latency, but low intelligence |
+| TTS  | DeepInfra  | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                 | 🔴 1.5–2.5s  | No mid-sentence language switching |
+| TTS  | SAPI5      | 🟠 Microsoft David    | 🔵 Free (local)                    | 🔵 instant   | Very fast, but robotic voice       |
+| TTS  | Async.com  | 🟢 Async Flash 1.0    | 🟠 $0.5/h                          | 🟢 0.6-0.7s  | Streamed response                  |
+| OCR  | OpenRouter | 🟢 Gemini 3.1 Flash   | 🟢 $0.00031/img approx.            | 🔴 3-3.8s    | Streamed response                  |
 
 *Info (especially pricing) may be inaccurate or outdated!*
 
@@ -42,6 +49,38 @@ Pricing links:
 - [Cerebras](https://www.cerebras.ai/pricing)
 - [DeepInfra](https://deepinfra.com/pricing)
 - [Together: Kokoro](https://www.together.ai/models/kokoro-82m)
+
+## Skills
+
+Skills are external abilities of the AI agent: fetching the current time (`dateandtime`), reading/writing notes (`memory`), etc.
+
+### Developing Skills
+
+Skills are contained in  `src/skills`.
+
+- Use the `Skill` base class to create new skills. 
+- `self.get_skill_storage_folder() -> str` provides a dedicated folder for the skill to store files, if needed. 
+- Use `_security.validate_name(name: str)` for folders, files etc. to prevent path traversal and other security issues.
+
+The AI needs to know which skills are available and how to call them. Thus, it is crucial to:
+
+- Heavily utilize type hinting whenever possible.
+- Use docstrings to explain the methods of the skill.
+- Use very descriptive names for methods and parameters.
+
+To test a skill, you can use the following command:
+
+```bash
+uv run python -m src.skills.myskillmodule
+```
+
+Getting `ModuleNotFoundError`s? It's a tiny bit hacky, but try:
+
+```bash
+$env:PYTHONPATH = "src"
+```
+
+...to tell Python where to look for modules, and try again.
 
 ## Benchmarks
 
