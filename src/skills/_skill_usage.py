@@ -1,9 +1,6 @@
 import inspect
 
-from .memory import MemorySkill
-from .dateandtime import DateAndTimeSkill
-
-SKILLS = [MemorySkill(), DateAndTimeSkill()]
+from config import SKILLS
 
 TYPE_MAP = {
     str: "string",
@@ -41,25 +38,6 @@ def get_parameter_info(method: callable) -> dict:
             required.append(param_name)
 
     return {"type": "object", "properties": parameters, "required": required}
-
-
-# see https://openrouter.ai/docs/api/api-reference/responses/create-responses#request.body.tools
-# i.e.
-# {
-#   "type": "function",
-#   "name": "MemorySkill__read",
-#   "description": "Read a memory's contents.",
-#   "parameters": {
-#     "type": "object",
-#     "properties": {
-#       "name": {
-#         "type": "string",
-#         "description": ""
-#       }
-#     },
-#     "required": ["name"]
-#   }
-# },
 
 
 def generate() -> list[dict]:

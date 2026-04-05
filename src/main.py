@@ -20,6 +20,7 @@ if len(sys.argv) < 2 or sys.argv[1] not in ("-t", "--text"):
         try:
             recording_file = mic.record()
             prompt = ASR().transcribe(recording_file)
+            print(f"[cyan]ASR:[/cyan] {prompt}")
         except Exception as e:
             print(f"[bold red]Mic/ASR Error:[/bold red] {e}")
             continue

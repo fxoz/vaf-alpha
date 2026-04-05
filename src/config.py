@@ -1,5 +1,8 @@
 from skills.memory import MemorySkill
+from skills.windowsapi import WindowsApiSkill
 from skills.dateandtime import DateAndTimeSkill
+
+SKILLS = [MemorySkill(), DateAndTimeSkill(), WindowsApiSkill()]
 
 TOOL_REGISTRY = {
     "DateAndTimeSkill__get_human_readable_time": DateAndTimeSkill().get_human_readable_time,
@@ -7,6 +10,11 @@ TOOL_REGISTRY = {
     "MemorySkill__list_all": MemorySkill().list_all,
     "MemorySkill__write": MemorySkill().write,
     "MemorySkill__read": MemorySkill().read,
+    "WindowsApiSkill__play_pause_media": WindowsApiSkill().play_pause_media,
+    "WindowsApiSkill__next_track": WindowsApiSkill().next_track,
+    "WindowsApiSkill__previous_track": WindowsApiSkill().previous_track,
+    "WindowsApiSkill__volume_up": WindowsApiSkill().volume_up,
+    "WindowsApiSkill__volume_down": WindowsApiSkill().volume_down,
 }
 
 
@@ -25,5 +33,6 @@ SYSTEM_PROMPT = """
 Answer in a very concise manner. Unless explicitly asked, respond with 1-2 very short sentences at most! 
 NEVER use visual or structural formatting (e.g., markdown, headers, lists, symbols, emojis, line breaks).
 You may still rewrite or normalize raw data (dates, times, numbers) into natural spoken language.
-IMPORTANT: You can call tools to get information or perform actions. The output of the tool calls will be passed back to you in a different prompt afterwards. 
+IMPORTANT: You can call tools to get information or perform actions. The output of the tool calls will be passed back to you in a different prompt afterwards.
+If a tool doesn't return anything, it means it executed successfully but returned no output.
 """
