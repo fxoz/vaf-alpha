@@ -13,13 +13,15 @@
         "src/asr/__pycache__": true,
         "src/llm/__pycache__": true,
         "src/tts/__pycache__": true,
-        "src/skills/__pycache__": true
+        "src/skills/__pycache__": true,
+        ".venv": true
     },
     "hide-files.files": [
         "src/__pycache__",
         "src/asr/__pycache__",
         "src/llm/__pycache__",
         "src/tts/__pycache__",
-        "src/skills/__pycache__"
+        "src/skills/__pycache__",
+        ".venv"
     ]
 }

@@ -1,21 +1,28 @@
 import httpx
-
 import time
-import utils
+import orjson
+
 from rich import print
-from ._base import LlmProvider, Conversation, LlmResponse, ToolCalls
+
+import utils
+import config
+
+from context import Chat
+from ._base import LlmProvider, LlmResponse, ToolCall
 
 _client = httpx.Client(timeout=60.0)
 
 
 class OpenRouterLlm(LlmProvider):
-    def respond(self, messages: Conversation) -> LlmResponse:
-        response: httpx.Response = _client.post(
-            "https://openrouter.ai/api/v1/chat/completions",
+    def respond(self, chat: Chat) -> LlmResponse:
+        req = dict(
+            url="https://openrouter.ai/api/v1/responses",
             json={
-                "model": "openai/gpt-oss-safeguard-20b",
-                "messages": messages,
-                "max_tokens": 1024,
+                **chat.inject(),
+                # "model": "openai/gpt-oss-safeguard-20b",
+                # "model": "mistralai/codestral-2508",
+                "model": "qwen/qwen3.5-flash-02-23",
+                "max_tokens": 4096,
                 "temperature": 0.2,
                 "provider": {
                     "sort": "latency",
@@ -27,21 +34,55 @@ class OpenRouterLlm(LlmProvider):
             },
             headers={"Authorization": f"Bearer {utils.get_env('OPENROUTER_KEY')}"},
         )
-        response.raise_for_status()
+
+        with open(f"logs/{time.time()}-request.json", "wb") as f:
+            req_safe = req.copy()
+            req_safe["headers"] = {"_redacted_": "REDACTED"}
+
+            f.write(orjson.dumps(req_safe, option=orjson.OPT_INDENT_2))
+
+        response: httpx.Response = _client.post(**req)
+        try:
+            response.raise_for_status()
+        except httpx.HTTPError as e:
+            try:
+                error_details = response.json()
+                print(f"[red]ERROR: LLM call failed: {error_details}[/red]")
+            except Exception:
+                print(f"[red]ERROR: LLM call failed: {e}[/red]")
+            raise
 
         cost_usd = response.json().get("usage", {}).get("total_cost_usd", 0)
-        if cost_usd > 0.01:
+        if cost_usd > config.PRICE_WARNING:
             print(f"[yellow]WARN: LLM call cost: ${cost_usd:.4f}[/yellow]")
 
+        with open(f"logs/{time.time()}-response.json", "wb") as f:
+            f.write(orjson.dumps(response.json(), option=orjson.OPT_INDENT_2))
+
+        text = None
+        for item in response.json()["output"]:
+            if item["type"] == "message":
+                text = item["content"][0]["text"]
+
+        tool_calls = []
+        for item in response.json()["output"]:
+            if item["type"] == "function_call":
+                tool_calls.append(
+                    ToolCall(
+                        name=item["name"],
+                        args=orjson.loads(item["arguments"]),
+                        call_id=item["call_id"],
+                    )
+                )
+
         return LlmResponse(
-            content=response.json()["choices"][0]["message"]["content"],
-            tool_calls=ToolCalls(
-                response.json()["choices"][0]["message"].get("tool_calls", [])
-            ),
+            text=text,
+            tool_calls=tool_calls,
         )
 
 
 if __name__ == "__main__":
     start = time.time()
-    print(OpenRouterLlm().respond([{"role": "user", "content": "what's up?"}]))
+
+    print(OpenRouterLlm().respond(Chat()))
     print(f"LLM response time: {time.time() - start:.2f}s")

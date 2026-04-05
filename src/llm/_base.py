@@ -6,12 +6,13 @@ Conversation = list[dict[str, str]]
 
 
 class ToolCall:
-    def __init__(self, name: str, args: dict = None):
+    def __init__(self, name: str, args: dict = None, call_id: str = None):
         self.name = name
-        self.args = args
+        self.args = args or {}
+        self.call_id = call_id or -1
 
     def __str__(self):
-        return f"ToolCall(name={self.name}, args={self.args})"
+        return f"ToolCall(name={self.name}, args={self.args}, call_id={self.call_id})"
 
     def __repr__(self):
         return self.__str__()
@@ -23,6 +24,7 @@ class ToolCalls(list[ToolCall]):
             ToolCall(
                 name=call["function"]["name"],
                 args=json.loads(call["function"]["arguments"]),
+                call_id=call.get("id"),
             )
             for call in from_openai_json
         )
@@ -35,15 +37,15 @@ class ToolCalls(list[ToolCall]):
 
 
 class LlmResponse:
-    def __init__(self, content: str = "", tool_calls: ToolCalls | None = None):
-        self.content = content
+    def __init__(self, text: str = "", tool_calls: ToolCalls | None = None):
+        self.text = text
         self.tool_calls = tool_calls or ToolCalls([])
 
-        if not any([self.content, self.tool_calls]):
+        if not any([self.text, self.tool_calls]):
             print("[yellow]WARN: LLM response is empty[/yellow]")
 
     def __str__(self):
-        return f"LlmResponse(content={self.content}, tool_calls={self.tool_calls})"
+        return f"LlmResponse(text={self.text}, tool_calls={self.tool_calls})"
 
     def __repr__(self):
         return self.__str__()

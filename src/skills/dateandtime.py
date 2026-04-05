@@ -9,5 +9,5 @@ class DateAndTimeSkill(Skill):
         return int(time.time())
 
     def get_human_readable_time(self) -> str:
-        """Get the current time in a human-readable format."""
+        """Current weekday, date and time. Example output: i.e. Sun Apr  5 19:18:11 2026."""
         return time.ctime()

@@ -1,4 +1,4 @@
-def validate_name(self, name: str) -> str:
+def validate_name(name: str) -> str:
     """Allow only a plain filename-like name."""
     if not isinstance(name, str) or not name:
         raise ValueError("name must be a non-empty string")
