@@ -2,13 +2,15 @@ from skills.dateandtime import DateAndTimeSkill
 from skills.memory import MemorySkill
 from skills.ocr import OcrSkill
 from skills.windowsapi import WindowsApiSkill
+from skills.spotify import SpotifySkill
 
 ocr = OcrSkill()
 memory = MemorySkill()
 date_and_time = DateAndTimeSkill()
+spotify = SpotifySkill()
 windows_api = WindowsApiSkill()
 
-SKILLS = [ocr, memory, date_and_time, windows_api]
+SKILLS = [ocr, memory, date_and_time, windows_api, spotify]
 
 TOOL_REGISTRY = {
     "DateAndTimeSkill__get_human_readable_time": date_and_time.get_human_readable_time,
@@ -22,4 +24,5 @@ TOOL_REGISTRY = {
     "WindowsApiSkill__volume_up": windows_api.volume_up,
     "WindowsApiSkill__volume_down": windows_api.volume_down,
     "OcrSkill__analyze_screen": ocr.analyze_screen,
+    "SpotifySkill__get_currently_playing": spotify.get_currently_playing,
 }

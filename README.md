@@ -35,7 +35,7 @@ For TTS: if streaming is supported, latency is measured until the first audio ch
 | ASR  | Mistral    | 🟢 Voxtral Mini       | 🟢 $0.001/min + $0.04/M out tokens | 🟡 0.45-0.9s | Needs more quality testing          |
 | LLM  | Cerebras   | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                  | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency   |
 | LLM  | OpenRouter | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended               | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
-| LLM  | OpenRouter | ❔ Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.          | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
+| LLM  | OpenRouter | 🔴 Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.          | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
 | TTS  | DeepInfra  | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                 | 🔴 1.5–2.5s  | No mid-sentence language switching  |
 | TTS  | SAPI5      | 🟠 Microsoft David    | 🔵 Free (local)                    | 🔵 instant   | Very fast, but robotic voice        |
 | TTS  | Async.com  | 🟢 Async Flash 1.0    | 🟠 $0.5/h                          | 🟢 0.6-0.7s  | Streamed response                   |
@@ -105,3 +105,21 @@ $env:PYTHONPATH = "src"
   > Even when using `previous_response_id`, **all previous input tokens** for responses in the chain **are billed as input tokens** in the API.
 
   This makes longer conversations very expensive. Instead, we specify a `RECENT_MESSAGES_LIMIT` in `config.py`, which keeps only the last $N$ messages in the conversation history, plus the system prompt.
+
+## Agent Pipeline
+
+Whenever a prompt is received, the agent processes it in the following way:
+- Prompt the LLM with recent (`config.RECENT_MESSAGES_LIMIT`) conversation context (including the prompt) and system prompt.
+- The LLM can then either answer the question directly, or call a tool (i.e. a skill method) if it needs more information to answer the question.
+- Is there any tool call? No, then answer the question directly and quit.
+- Yes, then call the tool and get the result.
+- Prompt the LLM again, but this time with the tool result included in the context. The LLM can then answer the question using the tool result, or call another tool if needed.
+
+This loop continues either until `config.CONSECUTIVE_TOOL_CALL_LIMIT` is reached or the LLM decides to answer the question without calling another tool.
+
+```bash
+>>> what am i listening to rn
+SpotifySkill__get_currently_playing{}
+-> {'track': 'Poe Mans Dreams (His Vice) (feat. GLC)', 'artists': 'Kendrick Lamar; GLC', 'album': 'Section.80'}
+LLM: You are listening to "Poe Mans Dreams (His Vice)" by Kendrick Lamar featuring GLC from the album Section.80.
+```
