@@ -28,6 +28,8 @@ user-top-read
 
     def get_currently_playing(self) -> dict:
         """Returns track, album, and artists."""
+        # I tested it, it even works for local files, including album retrieval.
+
         current_track = self.sp[0].current_user_playing_track()
 
         if current_track is None:
@@ -43,7 +45,7 @@ user-top-read
         }
 
     def search(self, query: str) -> dict:
-        """Search for a track, album, or artist."""
+        """Search for a track, album, or artist (all at once). Prefer tracks > albums > artists if the result is ambiguous, unless the query explicitly mentions otherwise."""
         results = self.sp[0].search(q=query, type="track,artist,album", limit=3)
 
         res = {"tracks": [], "artists": [], "albums": []}
@@ -79,8 +81,13 @@ user-top-read
 
         return res
 
+    def play_track_id(self, track_id: str) -> None:
+        """Play a track by its Spotify ID."""
+        self.sp[0].start_playback(uris=[f"spotify:track:{track_id}"])
+
 
 if __name__ == "__main__":
     spotify_skill = SpotifySkill()
-    print(spotify_skill.get_currently_playing())
-    print(spotify_skill.search("Blinding Lights"))
+    # print(spotify_skill.get_currently_playing())
+    # print(spotify_skill.search("toxicity"))
+    spotify_skill.play_track_id("2DlHlPMa4M17kufBvI2lEN")

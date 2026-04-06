@@ -2,15 +2,40 @@
 
 The goal for this project is to create a voice assistant that can perform various tasks. In the end, this codebase will probably be wrapped inside of an API, and we will have a separate client (Android, iOS, desktop, etc.) that interacts with the API. For now, however, we will focus on the core functionality of the assistant itself.
 
+Core principles:
+
+- **Modularity & customizability**: Skills are split into easily extensible modules using an uncluttered OOP approach.
+- **Speed**: From the start, multiple benchmarks have been conducted to find the fastest models for each task.
+- **Cost**: Similarly, cost is a major factor in the choice of models and APIs. The assistant should be affordable to run, even with frequent usage.
+- **Intelligence**: Finding a model that's both fast, affordable, and intelligent has been a major challenge. One way to work around this is i.e. the "deep thinking" skill, which uses a slower but more intelligent model for complex questions and tasks, while faster models can be used for simpler queries.
+- **Privacy**: In the future, the assistant should be able to run almost entirely locally using self-hosted AI models. At the very least, GDPR-compliant cloud API providers should be used. Self-hostability wasn't a core goal in the beginning, because of 1) costs 2) speed 3) complexity, whereas the first two are likely easier to work with with serverless APIs without cold starts.
+- **API**: In the long run, an API will be developed so this assistant can be used by different clients and devices.
+
+## Roadmap
+
 - [x] **Context** of previous question(s)
 - [x] **Skills** (e.g. calendar, weather, music, etc.)
-  - [x] **Media Control** (via Windows API)
-  - [x] **OCR** (take a screenshot and analyze it)
+  - [x] **(Long-Term) Memory**
+    - [x] List/write/read
+    - [ ] Append
+  - [x] **Date and Time**
+    - [x] Unix
+    - [x] Get local weekday, date and time
+  - [x] **Windows Media Control**
+  - [x] **OCR** (take a screenshot and analyze it using a multimodal LLM)
+  - [x] **Spotify**
+    - [x] Get currently playing track
+    - [x] Search for a track, album, or artist
+    - [x] Play a track
+    - [ ] Autoplay/Recommendations
   - [ ] **Deep Thinking** (use a better AI for complex questions and tasks)
+  - [ ] **Weather**
+  - [ ] **News**
+  - [ ] **Finance**
   - [ ] **Web Search**
-  - [ ] **Spotify**
-  - [ ] **Last.fm**
-    - [ ] **Custom algoritm** (e.g. "play something I haven't listened to in a while")
+  - [ ] **Last.fm** (for music recommendations based on listening history)
+  - [ ] **AlbumOfTheYear (AOTY)** (for high quality music recommendations)
+  - [ ] **Custom music algoritm** (requires AOTY and/or Last.fm integration! e.g. "play my favourite Deftones song")
 - [ ] **Auto-Retry** (change the model for 429s etc.)
 - [ ] **Error Handling** (e.g. if a skill fails, the assistant should be able to handle it gracefully and inform the user)
 - [ ] **Hotword** (for 'waking up' the assistant)
