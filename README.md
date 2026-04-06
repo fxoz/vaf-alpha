@@ -1,4 +1,4 @@
-# `vaf-alpha` Voice Assistant
+# `vaf-alpha` Voice Assistant Framework
 
 The goal for this project is to create a voice assistant that can perform various tasks. In the end, this codebase will probably be wrapped inside of an API, and we will have a separate client (Android, iOS, desktop, etc.) that interacts with the API. For now, however, we will focus on the core functionality of the assistant itself.
 
@@ -110,6 +110,14 @@ $env:PYTHONPATH = "src"
 ```
 
 ...to tell Python where to look for modules, and try again.
+
+### Important Notice
+
+Especially LLMs with lower intelligence might be unsure which skill to call. For example, "resume the song" can be done using Spotify or the Windows Media Control skill, which is ambiguous in human language. Thus, it is advisable to:
+
+- Disable all but the relevant skills when testing.
+- Make the method names and docstrings very descriptive.
+- Most importantly, utilize the system prompt to inform the LLM about when to use which skill.
 
 ## Benchmarks
 
