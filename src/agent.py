@@ -5,13 +5,12 @@ from rich import print
 
 import config
 import context
-import config_skills
+import skills._skill_usage
 
 from llm._base import LlmResponse
 from llm.openrouter import OpenRouterLlm as LLM
-import skills._skill_usage
 
-llm = LLM(skills._skill_usage.generate())
+llm = LLM(skills._skill_usage.TOOL_DEFINITIONS)
 
 
 def handle_prompt(prompt: str, chat: context.Chat) -> str:
@@ -31,14 +30,13 @@ def handle_prompt(prompt: str, chat: context.Chat) -> str:
             return final_text  # we're entirely done with this user prompt.
 
         for call in res.tool_calls:
-            assert call.name in config_skills.TOOL_REGISTRY, (
-                f"Tool {call.name} not found in registry"
-            )
+            if call.name not in skills._skill_usage.TOOL_REGISTRY:
+                raise ValueError(f"Tool {call.name} not found in registry")
 
             chat.add_tool_call(
                 name=call.name, arguments=call.args, call_id=call.call_id
             )
-            fn = config_skills.TOOL_REGISTRY[call.name]
+            fn = skills._skill_usage.TOOL_REGISTRY[call.name]
             print(f"[magenta][bold]{call.name}[/bold]{call.args}[/magenta]")
             try:
                 result = fn(**call.args)

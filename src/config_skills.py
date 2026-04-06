@@ -1,28 +1,60 @@
-from skills.dateandtime import DateAndTimeSkill
-from skills.memory import MemorySkill
-from skills.ocr import OcrSkill
-from skills.windowsapi import WindowsApiSkill
-from skills.spotify import SpotifySkill
+import inspect
 
-ocr = OcrSkill()
-memory = MemorySkill()
-date_and_time = DateAndTimeSkill()
-spotify = SpotifySkill()
-windows_api = WindowsApiSkill()
+from skills._skill_usage import SKILLS
 
-SKILLS = [ocr, memory, date_and_time, windows_api, spotify]
-
-TOOL_REGISTRY = {
-    "DateAndTimeSkill__get_human_readable_time": date_and_time.get_human_readable_time,
-    "DateAndTimeSkill__get_unix_timestamp": date_and_time.get_unix_timestamp,
-    "MemorySkill__list_all": memory.list_all,
-    "MemorySkill__write": memory.write,
-    "MemorySkill__read": memory.read,
-    "WindowsApiSkill__play_pause_media": windows_api.play_pause_media,
-    "WindowsApiSkill__next_track": windows_api.next_track,
-    "WindowsApiSkill__previous_track": windows_api.previous_track,
-    "WindowsApiSkill__volume_up": windows_api.volume_up,
-    "WindowsApiSkill__volume_down": windows_api.volume_down,
-    "OcrSkill__analyze_screen": ocr.analyze_screen,
-    "SpotifySkill__get_currently_playing": spotify.get_currently_playing,
+TYPE_MAP = {
+    str: "string",
+    int: "integer",
+    float: "number",
+    bool: "boolean",
+    list: "array",
+    dict: "object",
 }
+
+
+def _iter_tool_methods(skill):
+    skill_class = skill.__class__
+    for name, method in inspect.getmembers(skill_class, predicate=inspect.isfunction):
+        if name.startswith("_"):
+            continue
+        if method.__qualname__.split(".")[0] != skill_class.__name__:
+            continue
+        yield name, getattr(skill, name)
+
+
+def _get_parameter_info(method: callable) -> dict:
+    sig = inspect.signature(method)
+    parameters = {}
+    required = []
+
+    for param_name, param in sig.parameters.items():
+        assert TYPE_MAP.get(param.annotation), (
+            f"Unsupported parameter type: {param.annotation}"
+        )
+        parameters[param_name] = {
+            "type": TYPE_MAP[param.annotation],
+            "description": ""
+            if param.default == inspect.Parameter.empty
+            else f"Default: {param.default}",
+        }
+        if param.default == inspect.Parameter.empty:
+            required.append(param_name)
+
+    return {"type": "object", "properties": parameters, "required": required}
+
+
+TOOL_REGISTRY = {}
+TOOL_DEFINITIONS = []
+
+for skill in SKILLS:
+    for name, method in _iter_tool_methods(skill):
+        tool_name = f"{skill.__class__.__name__}__{name}"
+        TOOL_REGISTRY[tool_name] = method
+        TOOL_DEFINITIONS.append(
+            {
+                "type": "function",
+                "name": tool_name,
+                "description": method.__doc__ or "",
+                "parameters": _get_parameter_info(method),
+            }
+        )

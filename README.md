@@ -27,8 +27,16 @@ Core principles:
     - [x] Get currently playing track
     - [x] Search for a track, album, or artist
     - [x] Play a track
-    - [ ] Autoplay/Recommendations
+    - [x] Next, pause, resume
+    - [x] Change volume
+    - [ ] Autoplay similar songs
+      - Deprecated `reccobeats.com` (which is using Spotify's recommendation system in the backend), because there seems to be something severely broken with it. For example, [Digital Bath by Deftones](https://open.spotify.com/track/2jSJm3Gv6GLxduWLenmjKS?si=c6d9a7de14234ebb) (Alternative Metal) recommends only two(!) metal songs, the rest being Polish hyperpop, Korean as well as Latin pop, German conscious rap and other fully unrelated genres. I've tested this several times, with similarily dissapointing results.
+    - [ ] Change device
+    - [ ] Play personal playlist
   - [ ] **Deep Thinking** (use a better AI for complex questions and tasks)
+  - [ ] **Timer & Alarm**
+  - [ ] **Calendar**
+  - [ ] **Email** (with major focus on privacy!)
   - [ ] **Weather**
   - [ ] **News**
   - [ ] **Finance**

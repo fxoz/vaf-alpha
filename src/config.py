@@ -9,6 +9,7 @@ You may still rewrite or normalize raw data (dates, times, numbers) into natural
 IMPORTANT: You can call tools to get information or perform actions. The output of the tool calls will be passed back to you in a different prompt afterwards.
 If a tool doesn't return anything, it means it executed successfully but returned no output.
 You don't ALWAYS need to call a tool. Only use MemorySkill if "notes", "remember", "recall", "save", "write down" or any similar terms are mentioned, but not without no specific reason.
+NEVER, ever call a tool that is non-existent.
 """
 
 # For every LLM call, we include the initial system prompt + the most recent N messages in the conversation history.
