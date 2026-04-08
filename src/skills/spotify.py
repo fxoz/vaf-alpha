@@ -58,7 +58,7 @@ class SpotifySkill(Skill):
     def play_track_id(
         self, track_id: str, autoplay_similar_tracks: bool = True
     ) -> None:
-        """Play a track by its Spotify ID. Only disable autoplay if the user asks for it."""
+        """Play a track by its Spotify ID."""
         # recs = (
         #     spotify_recommend.recommend_based_on_spotify_track(
         #         track_id=track_id, n_songs=20
@@ -84,7 +84,7 @@ class SpotifySkill(Skill):
         self._run_with_device(self.sp.next_track)
 
     def set_volume(self, volume_percent: int) -> None:
-        """Set the volume (0-100). Use get_volume() first unless user specifies a value."""
+        """Set the volume (0-100). Use get_volume() first unless user specifies a value!"""
         self._run_with_device(self.sp.volume, volume_percent)
 
     # ── Read-only (no device needed) ──────────────────────────────────────
@@ -133,7 +133,7 @@ class SpotifySkill(Skill):
         return res
 
     def list_devices(self) -> list[dict]:
-        """List available Spotify Connect devices."""
+        """List available Spotify Connect devices. Only run if needed."""
         devices = self.sp.devices()
         return [
             {

@@ -15,7 +15,8 @@
         "src/tts/__pycache__": true,
         "src/skills/__pycache__": true,
         ".venv": true,
-        "src/skills/helpers/__pycache__": true
+        "src/skills/helpers/__pycache__": true,
+        "src/kws/__pycache__": true
     },
     "hide-files.files": [
         "src/__pycache__",
@@ -24,6 +25,7 @@
         "src/tts/__pycache__",
         "src/skills/__pycache__",
         ".venv",
-        "src/skills/helpers/__pycache__"
+        "src/skills/helpers/__pycache__",
+        "src/kws/__pycache__"
     ]
 }

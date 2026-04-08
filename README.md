@@ -60,19 +60,23 @@ End to end latency includes processing time. Ranges can vary significantly based
 
 For TTS: if streaming is supported, latency is measured until the first audio chunk is received. If not, it's measured until the entire audio is received.
 
+**KWS** = Keyword Spotting (wake word detection), **ASR** = Automatic Speech Recognition, **LLM** = Large Language Model, **OCR** = Optical Character Recognition, **TTS** = Text-to-Speech
+
 <div style="overflow-x: scroll;">
 
-| Task | Provider   | Model                | Cost                              | E2E Latency | Notes                               |
-| ---- | ---------- | -------------------- | --------------------------------- | ----------- | ----------------------------------- |
-| ASR  | DeepInfra  | 🟢 Voxtral Mini 3B    | 🟢 $0.0030/min                     | 🔴 2s        | Too slow                            |
-| ASR  | Mistral    | 🟢 Voxtral Mini       | 🟢 $0.001/min + $0.04/M out tokens | 🟡 0.45-0.9s | Needs more quality testing          |
-| LLM  | Cerebras   | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                  | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency   |
-| LLM  | OpenRouter | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended               | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
-| LLM  | OpenRouter | 🔴 Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.          | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
-| TTS  | DeepInfra  | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                 | 🔴 1.5–2.5s  | No mid-sentence language switching  |
-| TTS  | SAPI5      | 🟠 Microsoft David    | 🔵 Free (local)                    | 🔵 instant   | Very fast, but robotic voice        |
-| TTS  | Async.com  | 🟢 Async Flash 1.0    | 🟠 $0.5/h                          | 🟢 0.6-0.7s  | Streamed response                   |
-| OCR  | OpenRouter | 🟢 Gemini 3.1 Flash   | 🟢 $0.00031/img approx.            | 🔴 3-3.8s    | Didn't find a quicker in OpenRouter |
+| Task | Provider     | Model                | Cost                               | E2E Latency | Notes                               |
+| ---- | ------------ | -------------------- | ---------------------------------- | ----------- | ----------------------------------- |
+| KWS  | PicoVoice    | ❔ Porcupine          | ❔ Likely costly commercial license | ❔           | *Only* for businesses AFAIK         |
+| KWS  | OpenWakeWord | ❔ -various-          | 🔵 Free (local)                     | 🔵 excellent | ~100-200 MB RAM usage               |
+| ASR  | DeepInfra    | 🟢 Voxtral Mini 3B    | 🟢 $0.0030/min                      | 🔴 2s        | Too slow                            |
+| ASR  | Mistral      | 🟢 Voxtral Mini       | 🟢 $0.001/min + $0.04/M out tokens  | 🟡 0.45-0.9s | Needs more quality testing          |
+| LLM  | Cerebras     | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                   | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency   |
+| LLM  | OpenRouter   | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended                | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
+| LLM  | OpenRouter   | 🔴 Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.           | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
+| OCR  | OpenRouter   | 🟢 Gemini 3.1 Flash   | 🟢 $0.00031/img approx.             | 🔴 3-3.8s    | Didn't find a quicker in OpenRouter |
+| TTS  | DeepInfra    | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                  | 🔴 1.5–2.5s  | No mid-sentence language switching  |
+| TTS  | SAPI5        | 🟠 Microsoft David    | 🔵 Free (local)                     | 🔵 instant   | Very fast, but robotic voice        |
+| TTS  | Async.com    | 🟢 Async Flash 1.0    | 🟠 $0.5/h                           | 🟢 0.6-0.7s  | Streamed response                   |
 
 </div>
 
@@ -101,9 +105,13 @@ Skills are contained in  `src/skills`.
 
 The AI needs to know which skills are available and how to call them. Thus, it is crucial to:
 
-- Heavily utilize type hinting whenever possible.
+- Heavily utilize type hinting in your method signatures whenever possible
 - Use docstrings to explain the methods of the skill.
+  - The LLM can NOT read the source code or understand the function's logic. Pretend the LLM is of very low intelligence.
+  - I've been experimenting with very direct and cautious statements in skill method docstrings like "ONLY run this method/tweak this parameter if the user explicitly asks for it" to avoid lower-intelligence LLMs from mistakenly calling unnecessary tools.
 - Use very descriptive names for methods and parameters.
+
+### Testing Skills
 
 To test a skill, you can use the following command:
 
@@ -119,13 +127,15 @@ $env:PYTHONPATH = "src"
 
 ...to tell Python where to look for modules, and try again.
 
-### Important Notice
+### Skill Ambiguity
 
 Especially LLMs with lower intelligence might be unsure which skill to call. For example, "resume the song" can be done using Spotify or the Windows Media Control skill, which is ambiguous in human language. Thus, it is advisable to:
 
 - Disable all but the relevant skills when testing.
 - Make the method names and docstrings very descriptive.
 - Most importantly, utilize the system prompt to inform the LLM about when to use which skill.
+
+###
 
 ## Benchmarks
 
@@ -158,9 +168,31 @@ Whenever a prompt is received, the agent processes it in the following way:
 
 This loop continues either until `config.CONSECUTIVE_TOOL_CALL_LIMIT` is reached or the LLM decides to answer the question without calling another tool.
 
+
+`agent.py` is useful for testing the agent without tedious voice input, transcription and TTS. It also prints the tool calls etc.
+
+Usage:
 ```bash
->>> what am i listening to rn
-SpotifySkill__get_currently_playing{}
--> {'track': 'Poe Mans Dreams (His Vice) (feat. GLC)', 'artists': 'Kendrick Lamar; GLC', 'album': 'Section.80'}
-LLM: You are listening to "Poe Mans Dreams (His Vice)" by Kendrick Lamar featuring GLC from the album Section.80.
+uv run .\src\agent.py your prompt here
+```
+
+Example:
+
+```py
+PS C:\Users\Felix\Desktop\vaf-alpha> uv run .\src\agent.py play be quiet and drive away by deftones
+
+SpotifySkill__search_anything{'query': 'be quiet and drive away deftones'}
+-> {'tracks': [{'id': '4Uiw0Sl9yskBaC6P4DcdVD', 'name': 'Be Quiet and Drive (Far Away)', 'artists': 'Deftones'}, {'id': '2QeutlLcJf2V1cMUUsDFT1', 'name': 'Lotus Flower', 'artists': 'Radiohead'}, {'id': '3RpH7WXnV4fV5p8zo8JV9R', 'name': 
+'SEE OR HATE', 'artists': 'MakSmooth'}], 'artists': [{'id': '6Ghvu1VvMGScGpOUJBAHNH', 'name': 'Deftones'}, {'id': '05fG473iIaoy82BF1aGhL8', 'name': 'Slipknot'}, {'id': '3RNrq3jvMZxD9ZyoOZbQOD', 'name': 'Korn'}], 'albums': [{'id': 
+'7o4UsmV37Sg5It2Eb7vHzu', 'name': 'Around the Fur', 'artists': 'Deftones'}, {'id': '1GjjBpY2iDwSQs5bykQI5e', 'name': 'Diamond Eyes', 'artists': 'Deftones'}, {'id': '5LEXck3kfixFaA3CqVE7bC', 'name': 'White Pony', 'artists': 'Deftones'}]}
+SpotifySkill__play_track_id{'track_id': '4Uiw0Sl9yskBaC6P4DcdVD'}
+-> None
+"LLM: I found and played 'Be Quiet and Drive (Far Away)' by Deftones."
+
+
+PS C:\Users\Felix\Desktop\vaf-alpha> uv run .\src\agent.py louder!
+
+WindowsApiSkill__volume_up{}
+-> None
+"LLM: I have turned up the volume for you."
 ```
