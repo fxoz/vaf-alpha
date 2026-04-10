@@ -18,7 +18,7 @@ os.makedirs(recordings_dir)
 def record(
     sample_rate=16000,
     channels=1,
-    silence_threshold=0.005,  # RMS threshold for "near-silence"
+    silence_threshold=0.01,  # RMS threshold for "near-silence"
     silence_duration=1.2,  # seconds of near-silence before auto-stop
     min_record_seconds=0.4,  # avoid stopping immediately
     max_record_seconds=30.0,  # hard cap, safety only

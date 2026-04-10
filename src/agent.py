@@ -2,6 +2,7 @@ import sys
 import traceback
 
 from rich import print
+from yaspin import yaspin
 
 import config
 import context
@@ -11,6 +12,25 @@ from llm._base import LlmResponse
 from llm.openrouter import OpenRouterLlm as LLM
 
 llm = LLM(skills._skill_usage.TOOL_DEFINITIONS)
+
+
+def handle_tool_call(call: context.ToolCall, chat: context.Chat) -> None:
+    if call.name not in skills._skill_usage.TOOL_REGISTRY:
+        raise ValueError(f"Tool {call.name} not found in registry")
+
+    chat.add_tool_call(name=call.name, arguments=call.args, call_id=call.call_id)
+    fn = skills._skill_usage.TOOL_REGISTRY[call.name]
+    print(f"[magenta][bold]{call.name}[/bold]{call.args}[/magenta]")
+
+    try:
+        with yaspin(text="Using skill...", color="cyan") as _:
+            result = fn(**call.args)
+    except Exception as e:
+        result = f"Error calling tool: {e}"
+        traceback.print_exc()
+    chat.add_tool_call_output(call_id=call.call_id, output=result)
+
+    print(f"->[green] {result}[/green]")
 
 
 def handle_prompt(prompt: str, chat: context.Chat) -> str:
@@ -30,22 +50,7 @@ def handle_prompt(prompt: str, chat: context.Chat) -> str:
             return final_text  # we're entirely done with this user prompt.
 
         for call in res.tool_calls:
-            if call.name not in skills._skill_usage.TOOL_REGISTRY:
-                raise ValueError(f"Tool {call.name} not found in registry")
-
-            chat.add_tool_call(
-                name=call.name, arguments=call.args, call_id=call.call_id
-            )
-            fn = skills._skill_usage.TOOL_REGISTRY[call.name]
-            print(f"[magenta][bold]{call.name}[/bold]{call.args}[/magenta]")
-            try:
-                result = fn(**call.args)
-            except Exception as e:
-                result = f"Error calling tool: {e}"
-                traceback.print_exc()
-            chat.add_tool_call_output(call_id=call.call_id, output=result)
-
-            print(f"->[green] {result}[/green]")
+            handle_tool_call(call, chat)
 
 
 if __name__ == "__main__":

@@ -1,15 +1,14 @@
-from pathlib import Path
 from time import monotonic
 
+import os
+import globd
 import numpy as np
 import sounddevice as sd
 from openwakeword.model import Model
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-MODEL_PATH = REPO_ROOT / "models" / "kws" / "model.onnx"
 
 model = Model(
-    wakeword_model_paths=[str(MODEL_PATH)],
+    wakeword_model_paths=[str("models/kws/model.onnx")],
 )
 WAKEWORD_LABEL = next(iter(model.models))
 
@@ -17,7 +16,7 @@ WAKEWORD_LABEL = next(iter(model.models))
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 1280
 SENSITIVITY = 0.5
-DETECTION_COOLDOWN_SECONDS = 3.0
+DETECTION_COOLDOWN_SECONDS = 1.0
 last_detection_at = float("-inf")
 
 print(f"Listening for '{WAKEWORD_LABEL}'...")

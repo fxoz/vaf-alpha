@@ -19,21 +19,21 @@ class OpenRouterLlm(LlmProvider):
             url="https://openrouter.ai/api/v1/responses",
             json={
                 **chat.inject(),
-                # "model": "openai/gpt-oss-safeguard-20b",
-                # "model": "mistralai/codestral-2508",
-                "model": "qwen/qwen3.5-flash-02-23",
-                "max_tokens": 4096,
-                "temperature": 0.2,
+                "model": config.MODEL_LLM_BASIC,
+                "max_tokens": config.MODEL_LLM_BASIC_MAX_TOKENS,
+                "temperature": config.MODEL_LLM_BASIC_TEMPERATURE,
                 "provider": {
                     "sort": "latency",
-                },
-                "reasoning": {
-                    "effort": "minimal",
                 },
                 "tools": self.tools,
             },
             headers={"Authorization": f"Bearer {utils.get_env('OPENROUTER_KEY')}"},
         )
+
+        if config.MODEL_LLM_BASIC_REASONING:
+            req["json"]["reasoning"] = {
+                "effort": config.MODEL_LLM_BASIC_REASONING,
+            }
 
         with open(f"logs/{time.time()}-request.json", "wb") as f:
             req_safe = req.copy()

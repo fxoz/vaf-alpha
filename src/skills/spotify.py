@@ -7,7 +7,6 @@ from spotipy.exceptions import SpotifyException
 
 import utils
 
-from .helpers import spotify_recommend
 from ._base import Skill
 
 for name in ["urllib3", "requests", "spotipy"]:

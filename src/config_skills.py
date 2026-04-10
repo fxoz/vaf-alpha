@@ -10,5 +10,5 @@ SKILLS = [
     MemorySkill(),
     DateAndTimeSkill(),
     WindowsApiSkill(),
-    SpotifySkill(),
+    # SpotifySkill(),
 ]

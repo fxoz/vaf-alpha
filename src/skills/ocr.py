@@ -47,7 +47,7 @@ class OcrSkill(Skill):
                 "Content-Type": "application/json",
             },
             json={
-                "model": "google/gemini-3.1-flash-lite-preview",
+                "model": config.MODEL_OCR,
                 "reasoning": {"effort": "none"},
                 "messages": [
                     {
