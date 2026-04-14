@@ -29,7 +29,7 @@ def _screen_to_data_url() -> str:
 
 class OcrSkill(Skill):
     def analyze_screen(self, prompt: str = "What can be seen?") -> str:
-        """Screenshots the screen and runs it through an intelligent model which can also answer questions."""
+        """Screenshots the screen and runs it through an intelligent model which can also answer questions. NEVER, EVER use this in connection with the web skill."""
         prompt += " Unless explicitly asked, respond to only the very essential information in a very concise manner."
 
         image = _screen_to_data_url()

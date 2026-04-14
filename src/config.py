@@ -1,3 +1,11 @@
+BROWSE_HEADLESS: bool = True
+
+# no = raise exceptions and crash the program
+ALLOW_TOOL_ERRORS: bool = False
+
+# drastically reduces first web skill call latency, but increases startup time and resource usage!
+PREPARE_BROWSER_ON_STARTUP: bool = True
+
 # MODEL_LLM_BASIC = "openai/gpt-oss-safeguard-20b"
 # MODEL_LLM_BASIC = "mistralai/codestral-2508"
 MODEL_LLM_BASIC: str = "qwen/qwen3.5-flash-02-23"
@@ -10,6 +18,12 @@ MODEL_OCR: str = "google/gemini-3.1-flash-lite-preview"
 TIMEOUT_LLM_BASIC: float = 10.0
 TIMEOUT_OCR: float = 10.0
 TIMEOUT_WEB: float = 10.0
+TIMEOUT_WEB_TREE: float = 15.0
+
+BANNED_DOMAINS: list[str] = [
+    "google.com",
+    "youtube.com",
+]
 
 SYSTEM_PROMPT: str = """
 Answer in a very concise manner. Unless explicitly asked, respond with 1-2 very short sentences at most! 
@@ -18,7 +32,7 @@ You may still rewrite or normalize raw data (dates, times, numbers) into natural
 IMPORTANT: You can call tools to get information or perform actions. The output of the tool calls will be passed back to you in a different prompt afterwards.
 If a tool doesn't return anything, it means it executed successfully but returned no output.
 You don't ALWAYS need to call a tool. Only use MemorySkill if "notes", "remember", "recall", "save", "write down" or any similar terms are mentioned, but not without no specific reason.
-NEVER, ever call a tool that is non-existent.
+Use the web search skill (if available) for up-to-date info, research, and similar.
 """
 
 # For every LLM call, we include the initial system prompt + the most recent N messages in the conversation history.

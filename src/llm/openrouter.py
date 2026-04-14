@@ -52,7 +52,7 @@ class OpenRouterLlm(LlmProvider):
                 print(f"[red]ERROR: LLM call failed: {e}[/red]")
             raise
 
-        cost_usd = response.json().get("usage", {}).get("total_cost_usd", 0)
+        cost_usd = response.json().get("usage", {}).get("cost", 0)
         if cost_usd > config.PRICE_WARNING:
             print(f"[yellow]WARN: LLM call cost: ${cost_usd:.4f}[/yellow]")
 

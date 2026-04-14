@@ -19,10 +19,15 @@ Core principles:
     - [x] List/write/read
     - [ ] Append
   - [x] **Date and Time**
-    - [x] Unix
+    - [x] Get Unix timestamp
     - [x] Get local weekday, date and time
-  - [x] **Windows Media Control**
-  - [x] **OCR** (take a screenshot and analyze it using a multimodal LLM)
+  - [x] **Windows API (Media Playback)**
+    - [x] Pause/resume
+    - [x] Next/previous track
+    - [x] Volume: change
+  - [x] **OCR**
+    - [x] Screenshot
+    - [x] Multimodal LLM analysis, with custom prompt support
   - [x] **Spotify**
     - [x] Get currently playing track
     - [x] Search for a track, album, or artist
@@ -33,6 +38,12 @@ Core principles:
       - Deprecated `reccobeats.com` (which is using Spotify's recommendation system in the backend), because there seems to be something severely broken with it. For example, [Digital Bath by Deftones](https://open.spotify.com/track/2jSJm3Gv6GLxduWLenmjKS?si=c6d9a7de14234ebb) (Alternative Metal) recommends only two(!) metal songs, the rest being Polish hyperpop, Korean as well as Latin pop, German conscious rap and other fully unrelated genres. I've tested this several times, with similarily dissapointing results.
     - [ ] Change device
     - [ ] Play personal playlist
+  - [x] **Autonomous Browser Agent** (self-written)
+    - Deprecated multimodal LLM OCR for this because of very disappointing results: coordinates can not be estimated reliably whatsoever, neither normalized nor absolute coordinates.
+    - [x] High-stealth browser
+    - [x] Autonomously open websites and fetch ARIA tree
+    - [x] Click buttons, fill out inputs/forms
+    - [ ] OCR
   - [ ] **Deep Thinking** (use a better AI for complex questions and tasks)
   - [ ] **Timer & Alarm**
   - [ ] **Calendar**
@@ -40,7 +51,6 @@ Core principles:
   - [ ] **Weather**
   - [ ] **News**
   - [ ] **Finance**
-  - [ ] **Web Search**
   - [ ] **Last.fm** (for music recommendations based on listening history)
   - [ ] **AlbumOfTheYear (AOTY)** (for high quality music recommendations)
   - [ ] **Custom music algoritm** (requires AOTY and/or Last.fm integration! e.g. "play my favourite Deftones song")
@@ -73,6 +83,7 @@ For TTS: if streaming is supported, latency is measured until the first audio ch
 | LLM  | Cerebras     | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                   | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency   |
 | LLM  | OpenRouter   | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended                | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
 | LLM  | OpenRouter   | 🔴 Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.           | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
+| LLM  | ?            | 🔴 Qwen 3.5 4B        | 🟢 Very cheap                       | ❔(low)      | Not supported by OpenRouter         |
 | OCR  | OpenRouter   | 🟢 Gemini 3.1 Flash   | 🟢 $0.00031/img approx.             | 🔴 3-3.8s    | Didn't find a quicker in OpenRouter |
 | TTS  | DeepInfra    | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                  | 🔴 1.5–2.5s  | No mid-sentence language switching  |
 | TTS  | SAPI5        | 🟠 Microsoft David    | 🔵 Free (local)                     | 🔵 instant   | Very fast, but robotic voice        |

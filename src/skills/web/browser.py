@@ -1,31 +1,31 @@
-import argparse
-
-from typing import Optional
+import atexit
+from functools import cache
 from camoufox.sync_api import Camoufox
 
 import config
 
 
-def fetch_aria_tree(
-    *,
-    url: Optional[str] = None,
-    headless: bool = True,
-) -> str:
-    with Camoufox(headless=headless) as browser:
-        page = browser.new_page()
-        page.goto(url, wait_until="networkidle")
-
-        return page.locator("body").aria_snapshot()
+@cache
+def browser():
+    cm = Camoufox(headless=config.BROWSE_HEADLESS)
+    b = cm.start()
+    atexit.register(b.close)
+    return b
 
 
-def main() -> None:
-    print(
-        fetch_aria_tree(
-            url="https://wetteronline.de",
-            headless=True,
-        )
-    )
+@cache
+def context():
+    return browser().new_context()
 
 
-if __name__ == "__main__":
-    main()
+@cache
+def page():
+    p = context().new_page()
+    atexit.register(p.close)
+    return p
+
+
+def open_page(url: str):
+    p = page()
+    p.goto(url)
+    return p

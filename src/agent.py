@@ -1,17 +1,29 @@
+import os
 import sys
+import time
+import shutil
 import traceback
 
 from rich import print
 from yaspin import yaspin
+from rich.console import Console
 
 import config
 import context
 import skills._skill_usage
 
+
 from llm._base import LlmResponse
 from llm.openrouter import OpenRouterLlm as LLM
+from skills.web import init_browser
 
 llm = LLM(skills._skill_usage.TOOL_DEFINITIONS)
+
+if os.path.exists("logs"):
+    shutil.rmtree("logs")
+os.makedirs("logs", exist_ok=True)
+
+init_browser()
 
 
 def handle_tool_call(call: context.ToolCall, chat: context.Chat) -> None:
@@ -22,15 +34,27 @@ def handle_tool_call(call: context.ToolCall, chat: context.Chat) -> None:
     fn = skills._skill_usage.TOOL_REGISTRY[call.name]
     print(f"[magenta][bold]{call.name}[/bold]{call.args}[/magenta]")
 
+    start = time.time()
     try:
-        with yaspin(text="Using skill...", color="cyan") as _:
+        with yaspin(text="⌛ Using skill...", color="cyan") as _:
             result = fn(**call.args)
     except Exception as e:
         result = f"Error calling tool: {e}"
         traceback.print_exc()
+
+        if not config.ALLOW_TOOL_ERRORS:
+            raise
+
+    if time.time() - start > 1.0:
+        print(f"[yellow]Tool call took {time.time() - start:.2f} seconds[/yellow]")
+
     chat.add_tool_call_output(call_id=call.call_id, output=result)
 
-    print(f"->[green] {result}[/green]")
+    result_short = str(result).replace("\n", "↵ ")
+    if len(result_short) > 100:
+        result_short = result_short[:100] + "..."
+
+    print(f"->[green] {result_short}[/green]")
 
 
 def handle_prompt(prompt: str, chat: context.Chat) -> str:
@@ -54,12 +78,13 @@ def handle_prompt(prompt: str, chat: context.Chat) -> str:
 
 
 if __name__ == "__main__":
-    if not sys.argv[1:]:
-        print(
-            "[red]Error: No prompt provided. Please provide a prompt as a command-line argument.[/red]"
-        )
-        sys.exit(1)
-
     chat = context.Chat()
+    console = Console()
+
+    if not sys.argv[1:]:
+        while True:
+            inp = console.input("[bold magenta]Enter your prompt: [/bold magenta]")
+            handle_prompt(inp, chat)
+
     inp = " ".join([arg for arg in sys.argv[1:] if not arg.startswith("-")])
     handle_prompt(inp, chat)
