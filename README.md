@@ -107,7 +107,8 @@ Pricing links:
 Find a model with a high step count, low FA/H (false accepts per hour of random noise/speech), high recall on [openwakeword.com/library](https://openwakeword.com/library). I chose "Hey, Nexus" with 100k+ steps, 2.1 FA/H and 92.8% recall:
 
 - [**405 KB ONNX Download**](https://openwakeword.com/api/models/555/download?format=onnx)
-- Save as `models/kws/_hey-nexus.onnx`
+- Save as `models/kws/_Hey_Nexus.onnx`
+  - *Tip:* You can save several models in this folder. The first one that starts with a an underscore (`_`) will be used.
 
 I gitignored it because of license uncertainties.
 

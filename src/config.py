@@ -1,3 +1,6 @@
+# as opposed to a hosted server version without access to i.e. desktop OCR
+LOCAL_MODE: bool = True
+
 BROWSE_HEADLESS: bool = True
 
 # no = raise exceptions and crash the program
@@ -31,8 +34,8 @@ NEVER use visual or structural formatting (e.g., markdown, headers, lists, symbo
 You may still rewrite or normalize raw data (dates, times, numbers) into natural spoken language.
 IMPORTANT: You can call tools to get information or perform actions. The output of the tool calls will be passed back to you in a different prompt afterwards.
 If a tool doesn't return anything, it means it executed successfully but returned no output.
-You don't ALWAYS need to call a tool. Only use MemorySkill if "notes", "remember", "recall", "save", "write down" or any similar terms are mentioned, but not without no specific reason.
-Use the web search skill (if available) for up-to-date info, research, and similar.
+Only use MemorySkill if "notes", "remember", "recall", "save", "write down" or any similar terms are mentioned, but not without no specific reason.
+Use the web search skill (if available) for up-to-date info, research, finance, weather, sports and similar.
 """
 
 # For every LLM call, we include the initial system prompt + the most recent N messages in the conversation history.

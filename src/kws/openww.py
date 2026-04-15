@@ -1,14 +1,23 @@
 from time import monotonic
 
 import os
-import globd
+import glob
 import numpy as np
 import sounddevice as sd
 from openwakeword.model import Model
 
+model_file = None
+for file in glob.glob(os.path.join("models/kws", "_*.onnx")):
+    model_file = file
+    break
+
+if not model_file:
+    raise FileNotFoundError(
+        "No wake word model found (see README). Please download an ONNX model and save it in 'models/kws' with a name that starts with an underscore (e.g., '_Hey_Nexus.onnx')."
+    )
 
 model = Model(
-    wakeword_model_paths=[str("models/kws/model.onnx")],
+    wakeword_model_paths=[model_file],
 )
 WAKEWORD_LABEL = next(iter(model.models))
 

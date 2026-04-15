@@ -6,8 +6,9 @@ from skills.ocr import OcrSkill
 from skills.windowsapi import WindowsApiSkill
 from skills.web import WebSkill
 
+
 # Configure enabled skill instances here.
-SKILLS = [
+_SKILLS = [
     OcrSkill(),
     MemorySkill(),
     DateAndTimeSkill(),
@@ -15,3 +16,5 @@ SKILLS = [
     # SpotifySkill(),
     WebSkill(),
 ]
+
+SKILLS = [s for s in _SKILLS if s]
