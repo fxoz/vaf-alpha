@@ -1,60 +1,78 @@
-from time import monotonic
-
 import os
 import glob
+import time
+import threading
 import numpy as np
 import sounddevice as sd
+from rich import print
 from openwakeword.model import Model
-
-model_file = None
-for file in glob.glob(os.path.join("models/kws", "_*.onnx")):
-    model_file = file
-    break
-
-if not model_file:
-    raise FileNotFoundError(
-        "No wake word model found (see README). Please download an ONNX model and save it in 'models/kws' with a name that starts with an underscore (e.g., '_Hey_Nexus.onnx')."
-    )
-
-model = Model(
-    wakeword_model_paths=[model_file],
-)
-WAKEWORD_LABEL = next(iter(model.models))
-
 
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 1280
 SENSITIVITY = 0.5
-DETECTION_COOLDOWN_SECONDS = 1.0
-last_detection_at = float("-inf")
+DETECTION_COOLDOWN_SECONDS = 2.0
+STARTUP_IGNORE_SECONDS = 0.75
 
-print(f"Listening for '{WAKEWORD_LABEL}'...")
+_LAST_DETECTION_AT = float("-inf")
 
 
-def callback(indata, frames, time, status):
-    global last_detection_at
+def _find_model():
+    for file in glob.glob(os.path.join("models/kws", "_*.onnx")):
+        return file
+    raise FileNotFoundError(
+        "[bold red]No wake word model found in models/kws[/bold red]"
+    )
 
-    if status:
-        print(status)
 
-    audio_frame = (indata[:, 0] * 32767).astype(np.int16)
-    prediction = model.predict(audio_frame)
+_MODEL_FILE = _find_model()
 
-    now = monotonic()
-    if (
-        prediction[WAKEWORD_LABEL] > SENSITIVITY
-        and now - last_detection_at >= DETECTION_COOLDOWN_SECONDS
+
+def _make_model():
+    model = Model(wakeword_model_paths=[_MODEL_FILE])
+    label = next(iter(model.models))
+    return model, label
+
+
+def loop():
+    global _LAST_DETECTION_AT
+
+    detected = threading.Event()
+    model, wakeword_label = _make_model()
+    started_at = time.monotonic()
+
+    print(f"[green]Listening for [italic]{wakeword_label}[/italic]...[/green]")
+
+    def callback(indata: np.ndarray, frames, time_info, status):
+        global _LAST_DETECTION_AT
+
+        now = time.monotonic()
+
+        if now - started_at < STARTUP_IGNORE_SECONDS:
+            return
+
+        if status:
+            print(status)
+
+        audio_frame = (indata[:, 0] * 32767).astype(np.int16)
+        prediction = model.predict(audio_frame)
+        score = prediction[wakeword_label]
+
+        if (
+            score > SENSITIVITY
+            and now - _LAST_DETECTION_AT >= DETECTION_COOLDOWN_SECONDS
+        ):
+            _LAST_DETECTION_AT = now
+            print(
+                f"[yellow]Wake word detected:[/yellow] {wakeword_label} ({score:.3f})"
+            )
+            detected.set()
+
+    with sd.InputStream(
+        samplerate=SAMPLE_RATE,
+        channels=1,
+        dtype="float32",
+        blocksize=CHUNK_SIZE,
+        callback=callback,
     ):
-        last_detection_at = now
-        print("Wake word detected!")
-
-
-with sd.InputStream(
-    samplerate=SAMPLE_RATE,
-    channels=1,
-    dtype="float32",
-    blocksize=CHUNK_SIZE,
-    callback=callback,
-):
-    while True:
-        sd.sleep(1000)
+        while not detected.is_set():
+            sd.sleep(50)

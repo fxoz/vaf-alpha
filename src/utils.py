@@ -9,3 +9,8 @@ def get_env(key: str) -> str:
     if not value:
         raise RuntimeError(f"Environment variable {key} not set")
     return value
+
+
+def get_calendars() -> list[str]:
+    calendars = get_env("CALENDARS_ICS")
+    return calendars.split(" ")

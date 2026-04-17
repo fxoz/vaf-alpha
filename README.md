@@ -54,11 +54,9 @@ Core principles:
   - [ ] **Last.fm** (for music recommendations based on listening history)
   - [ ] **AlbumOfTheYear (AOTY)** (for high quality music recommendations)
   - [ ] **Custom music algoritm** (requires AOTY and/or Last.fm integration! e.g. "play my favourite Deftones song")
-- [ ] **Auto-Retry** (change the model for 429s etc.)
+- [x] **Hotword** (for 'waking up' the assistant)
 - [ ] **Error Handling** (e.g. if a skill fails, the assistant should be able to handle it gracefully and inform the user)
-- [ ] **Hotword** (for 'waking up' the assistant)
 - [ ] **Barge-in** (interupting the assistant while it's speaking)
-- [ ] **Multi-User-Support** (different users can have different skill storages etc.)
 - [ ] **API** (important, but needs time)
 
 
@@ -190,7 +188,7 @@ Whenever a prompt is received, the agent processes it in the following way:
 This loop continues either until `config.CONSECUTIVE_TOOL_CALL_LIMIT` is reached or the LLM decides to answer the question without calling another tool.
 
 
-`agent.py` is useful for testing the agent without tedious voice input, transcription and TTS. It also prints the tool calls etc.
+`agent.py` is useful for testing the agent without voice input, transcription and TTS. It also prints the tool calls etc.
 
 Usage:
 ```bash
