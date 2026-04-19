@@ -17,10 +17,12 @@ PREPARE_BROWSER_ON_STARTUP: bool = True
 
 # MODEL_LLM_BASIC = "openai/gpt-oss-safeguard-20b"
 # MODEL_LLM_BASIC = "mistralai/codestral-2508"
-MODEL_LLM_BASIC: str = "qwen/qwen3.5-flash-02-23"
+# MODEL_LLM_BASIC: str = "qwen/qwen3.5-flash-02-23"
+MODEL_LLM_BASIC: str = "openai/gpt-oss-120b"
 MODEL_LLM_BASIC_TEMPERATURE: float = 0.2
 MODEL_LLM_BASIC_MAX_TOKENS: int = 4096
 MODEL_LLM_BASIC_REASONING: str = "minimal"
+MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDER: str | None = None  # "google-vertex"
 
 MODEL_OCR: str = "google/gemini-3.1-flash-lite-preview"
 

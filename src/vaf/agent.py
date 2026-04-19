@@ -82,7 +82,7 @@ if __name__ == "__main__":
     chat = context.Chat()
     console = Console()
 
-    if not sys.argv[1:]:
+    if not [arg for arg in sys.argv[1:] if not arg.startswith("-")]:
         while True:
             inp = console.input("[bold magenta]Enter your prompt: [/bold magenta]")
             handle_prompt(inp, chat)

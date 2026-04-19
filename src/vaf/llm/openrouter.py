@@ -14,7 +14,27 @@ _client = httpx.Client(timeout=config.TIMEOUT_LLM_BASIC)
 
 
 class OpenRouterLlm(LlmProvider):
+    def _calculate_usage(self, data: dict) -> None:
+        usage = data.get("usage") or {}
+        is_byok = usage.get("is_byok", False)
+
+        if usage.get("cost") == 0 and is_byok:
+            cost_usd = data["usage"].get("upstream_inference_cost", 0)
+        else:
+            cost_usd = usage.get("cost", 0)
+
+        if cost_usd > config.PRICE_WARNING:
+            print(
+                f"[yellow]WARN: LLM call cost: ${cost_usd:.4f}[/yellow]{' [byok]' if is_byok else ''}"
+            )
+
     def respond(self, chat: Chat) -> LlmResponse:
+        provider_config = dict(sort="latency")
+        if config.MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDER:
+            provider_config["allow"] = (
+                config.MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDER
+            )
+
         req = dict(
             url="https://openrouter.ai/api/v1/responses",
             json={
@@ -22,9 +42,7 @@ class OpenRouterLlm(LlmProvider):
                 "model": config.MODEL_LLM_BASIC,
                 "max_tokens": config.MODEL_LLM_BASIC_MAX_TOKENS,
                 "temperature": config.MODEL_LLM_BASIC_TEMPERATURE,
-                "provider": {
-                    "sort": "latency",
-                },
+                "provider": provider_config,
                 "tools": self.tools,
             },
             headers={"Authorization": f"Bearer {utils.get_env('OPENROUTER_KEY')}"},
@@ -35,11 +53,7 @@ class OpenRouterLlm(LlmProvider):
                 "effort": config.MODEL_LLM_BASIC_REASONING,
             }
 
-        with open(f"logs/{time.time()}-request.json", "wb") as f:
-            req_safe = req.copy()
-            req_safe["headers"] = {"_redacted_": "REDACTED"}
-
-            f.write(orjson.dumps(req_safe, option=orjson.OPT_INDENT_2))
+        self._log_request(req)
 
         response: httpx.Response = _client.post(**req)
         try:
@@ -58,22 +72,17 @@ class OpenRouterLlm(LlmProvider):
             print(f"[red]ERROR: Unexpected LLM response format: {response.text}[/red]")
             raise ValueError("Unexpected LLM response format")
 
-        usage = data.get("usage") or {}
-        cost_usd: float = usage.get("cost", 0)
-
-        if cost_usd > config.PRICE_WARNING:
-            print(f"[yellow]WARN: LLM call cost: ${cost_usd:.4f}[/yellow]")
+        self._calculate_usage(data)
 
         with open(f"logs/{time.time()}-response.json", "wb") as f:
             f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
 
         text = None
+        tool_calls = []
         for item in data["output"]:
             if item["type"] == "message":
                 text = item["content"][0]["text"]
 
-        tool_calls = []
-        for item in data["output"]:
             if item["type"] == "function_call":
                 tool_calls.append(
                     ToolCall(

@@ -1,4 +1,7 @@
 import json
+import time
+import orjson
+
 from abc import ABC, abstractmethod
 from rich import print
 
@@ -58,6 +61,13 @@ class LlmProvider(ABC):
             json.dumps(self.tools)
         except (TypeError, ValueError) as e:
             raise ValueError(f"Tools must be JSON-serializable: {e}")
+
+    def _log_request(self, req: dict) -> None:
+        with open(f"logs/{time.time()}-request.json", "wb") as f:
+            req_safe = req.copy()
+            req_safe["headers"] = {"_redacted_": "REDACTED"}
+
+            f.write(orjson.dumps(req_safe, option=orjson.OPT_INDENT_2))
 
     @abstractmethod
     def respond(self, messages: Conversation) -> str:
