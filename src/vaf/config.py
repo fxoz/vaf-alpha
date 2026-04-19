@@ -18,11 +18,11 @@ PREPARE_BROWSER_ON_STARTUP: bool = True
 # MODEL_LLM_BASIC = "openai/gpt-oss-safeguard-20b"
 # MODEL_LLM_BASIC = "mistralai/codestral-2508"
 # MODEL_LLM_BASIC: str = "qwen/qwen3.5-flash-02-23"
-MODEL_LLM_BASIC: str = "openai/gpt-oss-120b"
+MODEL_LLM_BASIC: str = "qwen/qwen3.5-9b"
 MODEL_LLM_BASIC_TEMPERATURE: float = 0.2
 MODEL_LLM_BASIC_MAX_TOKENS: int = 4096
 MODEL_LLM_BASIC_REASONING: str = "minimal"
-MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDER: str | None = None  # "google-vertex"
+MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDERS: list[str] = ["together"]
 
 MODEL_OCR: str = "google/gemini-3.1-flash-lite-preview"
 
@@ -46,7 +46,8 @@ You may still rewrite or normalize raw data (dates, times, numbers) into natural
 IMPORTANT: You can call tools to get information or perform actions. The output of the tool calls will be passed back to you in a different prompt afterwards.
 If a tool doesn't return anything, it means it executed successfully but returned no output.
 Only use MemorySkill if "notes", "remember", "recall", "save", "write down" or any similar terms are mentioned, but not without no specific reason.
-Use the web search skill (if available) for up-to-date info, research, finance, weather, sports and similar.
+Use the web search skill (if available) for up-to-date info, news, research, finance, weather, sports and similar.
+Don't rely on your own knowledge for anything that likely has changed since your training data! This includes but is not limited to: ages of people, current presidents or leaders, sports scores, etc.
 ALWAYS respond in the language used in the prompt, unless explicitly asked to switch to a different language or to translate. 
 """
 

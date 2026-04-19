@@ -1,3 +1,8 @@
+"""
+-p: Disable browser initialization on startup.
+-t: Adds more time measurements.
+"""
+
 import os
 import sys
 import time
@@ -64,7 +69,13 @@ def handle_prompt(prompt: str, chat: context.Chat) -> str:
 
     # +1 because a "normal", non-tool-calling response from the LLM is ALSO handled inside of this loop.
     for _ in range(config.CONSECUTIVE_TOOL_CALL_LIMIT + 1):
+        start_llm = time.time()
         res: LlmResponse = llm.respond(chat)
+
+        if "-t" in sys.argv:
+            print(
+                f"[yellow]LLM call took {time.time() - start_llm:.2f} seconds[/yellow]"
+            )
 
         if res.text:
             chat.add_ai_message(res.text)

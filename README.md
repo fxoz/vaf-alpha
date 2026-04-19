@@ -58,7 +58,8 @@ Core principles:
   - [ ] **Custom music algoritm** (requires AOTY and/or Last.fm integration! e.g. "play my favourite Deftones song")
   - [ ] **Python Sandbox**
 - [x] **Hotword** (for 'waking up' the assistant)
-- [ ] **Intelligent context management** (always keep system prompt + user prompt + balance between token usage & relevant context)^
+- [ ] **Intelligent context management** (always keep system prompt + user prompt + balance between token usage & relevant context)
+- [ ] **Prompt Cache**
 - [ ] **Error Handling** (e.g. if a skill fails, the assistant should be able to handle it gracefully and inform the user)
 - [ ] **Barge-in** (interupting the assistant while it's speaking)
 - [ ] **API** (important, but needs time)

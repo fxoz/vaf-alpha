@@ -19,20 +19,24 @@ class OpenRouterLlm(LlmProvider):
         is_byok = usage.get("is_byok", False)
 
         if usage.get("cost") == 0 and is_byok:
-            cost_usd = data["usage"].get("upstream_inference_cost", 0)
+            cost_details = usage.get("cost_details") or {}
+            cost_usd = cost_details.get(
+                "upstream_inference_cost",
+                usage.get("upstream_inference_cost", 0),
+            )
         else:
             cost_usd = usage.get("cost", 0)
 
         if cost_usd > config.PRICE_WARNING:
             print(
-                f"[yellow]WARN: LLM call cost: ${cost_usd:.4f}[/yellow]{' [byok]' if is_byok else ''}"
+                f"[yellow]WARN! LLM call cost: ${cost_usd:.4f} @ {data.get('usage', {}).get('input_tokens', 0)} input tokens[/yellow]{' [byok]' if is_byok else ''}"
             )
 
     def respond(self, chat: Chat) -> LlmResponse:
         provider_config = dict(sort="latency")
-        if config.MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDER:
-            provider_config["allow"] = (
-                config.MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDER
+        if config.MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDERS:
+            provider_config["order"] = (
+                config.MODEL_LLM_BASIC_OPENROUTER_ENFORCE_PROVIDERS
             )
 
         req = dict(
