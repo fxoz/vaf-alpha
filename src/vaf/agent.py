@@ -23,7 +23,8 @@ if os.path.exists("logs"):
     shutil.rmtree("logs")
 os.makedirs("logs", exist_ok=True)
 
-init_browser()
+if "-p" not in sys.argv:
+    init_browser()
 
 
 def handle_tool_call(call: context.ToolCall, chat: context.Chat) -> None:

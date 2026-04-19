@@ -22,7 +22,7 @@ class Chat:
 
     def wrap_user_prompt_with_sentinel(self, prompt: str) -> str:
         return (
-            f"%%% THE FOLLOWING IS THE LAST USER PROMPT TO ENSURE CONTEXT %%% {prompt}"
+            f"%% THE FOLLOWING IS THE LAST USER PROMPT TO ENSURE CONTEXT %%\n{prompt}"
         )
 
     def is_user_prompt_in_context(self, context: Conversation) -> bool:

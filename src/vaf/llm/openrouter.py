@@ -52,20 +52,28 @@ class OpenRouterLlm(LlmProvider):
                 print(f"[red]ERROR: LLM call failed: {e}[/red]")
             raise
 
-        cost_usd = response.json().get("usage", {}).get("cost", 0)
+        data = response.json()
+
+        if not isinstance(data, dict) or "output" not in data:
+            print(f"[red]ERROR: Unexpected LLM response format: {response.text}[/red]")
+            raise ValueError("Unexpected LLM response format")
+
+        usage = data.get("usage") or {}
+        cost_usd: float = usage.get("cost", 0)
+
         if cost_usd > config.PRICE_WARNING:
             print(f"[yellow]WARN: LLM call cost: ${cost_usd:.4f}[/yellow]")
 
         with open(f"logs/{time.time()}-response.json", "wb") as f:
-            f.write(orjson.dumps(response.json(), option=orjson.OPT_INDENT_2))
+            f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
 
         text = None
-        for item in response.json()["output"]:
+        for item in data["output"]:
             if item["type"] == "message":
                 text = item["content"][0]["text"]
 
         tool_calls = []
-        for item in response.json()["output"]:
+        for item in data["output"]:
             if item["type"] == "function_call":
                 tool_calls.append(
                     ToolCall(

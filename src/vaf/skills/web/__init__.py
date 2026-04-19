@@ -1,11 +1,13 @@
+from rich import print
+
+import config
+
 from .._base import Skill
 
 from . import banned
 from . import scraper
 from . import browser
 from . import controller
-
-from rich import print
 
 
 def init_browser():
@@ -14,8 +16,8 @@ def init_browser():
 
 class WebSkill(Skill):
     def open_and_fetch_contents(self, url: str) -> str:
-        """Run this before interacting with the page, like clicking or typing.."""
-        url = url.replace("google.com/", "duckduckgo.com/")
+        f"""Run this before interacting with the page, like clicking or typing | NEVER, EVER BROWSE: {", ".join(config.BANNED_DOMAINS)}"""
+        # url = url.replace("google.com/", "duckduckgo.com/")
         if banned.is_website_banned(url):
             raise ValueError(f"Browsing to {url} is not allowed!")
 

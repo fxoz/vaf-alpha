@@ -1,3 +1,8 @@
+CALENDAR_CACHE_SECONDS: int = 600
+
+CALENDAR_CONTEXT_MAX_ITEMS: int = 20
+CALENDAR_CONTEXT_MAX_DAYS: int = 7
+
 # as opposed to a hosted server version without access to i.e. desktop OCR
 LOCAL_MODE: bool = True
 
@@ -7,6 +12,7 @@ BROWSE_HEADLESS: bool = True
 ALLOW_TOOL_ERRORS: bool = False
 
 # drastically reduces first web skill call latency, but increases startup time and resource usage!
+# ? Tip! Disable using -p in agent.py
 PREPARE_BROWSER_ON_STARTUP: bool = True
 
 # MODEL_LLM_BASIC = "openai/gpt-oss-safeguard-20b"
@@ -26,6 +32,9 @@ TIMEOUT_WEB_TREE: float = 15.0
 BANNED_DOMAINS: list[str] = [
     "google.com",
     "youtube.com",
+    "facebook.com",
+    "linkedin.com",
+    "trends.google.com",
 ]
 
 SYSTEM_PROMPT: str = """
@@ -36,6 +45,7 @@ IMPORTANT: You can call tools to get information or perform actions. The output 
 If a tool doesn't return anything, it means it executed successfully but returned no output.
 Only use MemorySkill if "notes", "remember", "recall", "save", "write down" or any similar terms are mentioned, but not without no specific reason.
 Use the web search skill (if available) for up-to-date info, research, finance, weather, sports and similar.
+ALWAYS respond in the language used in the prompt, unless explicitly asked to switch to a different language or to translate. 
 """
 
 # For every LLM call, we include the initial system prompt + the most recent N messages in the conversation history.

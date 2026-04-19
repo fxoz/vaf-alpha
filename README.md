@@ -44,9 +44,11 @@ Core principles:
     - [x] Autonomously open websites and fetch ARIA tree
     - [x] Click buttons, fill out inputs/forms
     - [ ] OCR
+  - [ ] **Calendar**
+    - [ ] ICS feed support 
+      - Use `.env` to specify calendar URLs in this format: `CALENDARS_ICS="work https://my.biz/work.ics; personal https://example.com/personal.ics"`. Never use spaces for your calendar names.
   - [ ] **Deep Thinking** (use a better AI for complex questions and tasks)
   - [ ] **Timer & Alarm**
-  - [ ] **Calendar**
   - [ ] **Email** (with major focus on privacy!)
   - [ ] **Weather**
   - [ ] **News**
@@ -54,7 +56,9 @@ Core principles:
   - [ ] **Last.fm** (for music recommendations based on listening history)
   - [ ] **AlbumOfTheYear (AOTY)** (for high quality music recommendations)
   - [ ] **Custom music algoritm** (requires AOTY and/or Last.fm integration! e.g. "play my favourite Deftones song")
+  - [ ] **Python Sandbox**
 - [x] **Hotword** (for 'waking up' the assistant)
+- [ ] **Intelligent context management** (always keep system prompt + user prompt + balance between token usage & relevant context)^
 - [ ] **Error Handling** (e.g. if a skill fails, the assistant should be able to handle it gracefully and inform the user)
 - [ ] **Barge-in** (interupting the assistant while it's speaking)
 - [ ] **API** (important, but needs time)
@@ -72,22 +76,25 @@ For TTS: if streaming is supported, latency is measured until the first audio ch
 
 <div style="overflow-x: scroll;">
 
-| Task | Provider     | Model                | Cost                               | E2E Latency | Notes                               |
-| ---- | ------------ | -------------------- | ---------------------------------- | ----------- | ----------------------------------- |
-| KWS  | PicoVoice    | ❔ Porcupine          | ❔ Likely costly commercial license | ❔           | *Only* for businesses AFAIK         |
-| KWS  | OpenWakeWord | ❔ -various-          | 🔵 Free (local)                     | 🔵 excellent | ~100-200 MB RAM usage               |
-| ASR  | DeepInfra    | 🟢 Voxtral Mini 3B    | 🟢 $0.0030/min                      | 🔴 2s        | Too slow                            |
-| ASR  | Mistral      | 🟢 Voxtral Mini       | 🟢 $0.001/min + $0.04/M out tokens  | 🟡 0.45-0.9s | Needs more quality testing          |
-| LLM  | Cerebras     | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                   | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency   |
-| LLM  | OpenRouter   | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended                | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
-| LLM  | OpenRouter   | 🔴 Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.           | 🟢 0.4-0.7s  | Good latency, but low intelligence  |
-| LLM  | ?            | 🔴 Qwen 3.5 4B        | 🟢 Very cheap                       | ❔(low)      | Not supported by OpenRouter         |
-| OCR  | OpenRouter   | 🟢 Gemini 3.1 Flash   | 🟢 $0.00031/img approx.             | 🔴 3-3.8s    | Didn't find a quicker in OpenRouter |
-| TTS  | DeepInfra    | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                  | 🔴 1.5–2.5s  | No mid-sentence language switching  |
-| TTS  | SAPI5        | 🟠 Microsoft David    | 🔵 Free (local)                     | 🔵 instant   | Very fast, but robotic voice        |
-| TTS  | Async.com    | 🟢 Async Flash 1.0    | 🟠 $0.5/h                           | 🟢 0.6-0.7s  | Streamed response                   |
+| Task | Provider     | Model                | Cost                               | E2E Latency | Notes                                 |
+| ---- | ------------ | -------------------- | ---------------------------------- | ----------- | ------------------------------------- |
+| KWS  | PicoVoice    | ❔ Porcupine          | ❔ Likely costly commercial license | ❔           | *Only* for businesses AFAIK           |
+| KWS  | OpenWakeWord | ❔ -various-          | 🔵 Free (local)                     | 🔵 excellent | ~100-200 MB RAM usage                 |
+| ASR  | DeepInfra    | 🟢 Voxtral Mini 3B    | 🟢 $0.0030/min                      | 🔴 2s        | Too slow                              |
+| ASR  | Mistral      | 🟢 Voxtral Mini       | 🟢 $0.001/min + $0.04/M out tokens  | 🟡 0.45-0.9s | Needs more quality testing            |
+| LLM  | Cerebras     | 🟡 GPT OSS 120b       | 🟢 $0.35/M tokens                   | 🔴 2.5s-3s   | SOTA TPS speeds, but high latency     |
+| LLM  | OpenRouter   | 🟠 GPT OSS 20b (Groq) | 🟢 $0.1875/M blended                | 🟢 0.4-0.7s  | Good latency, but low intelligence    |
+| LLM  | OpenRouter   | 🔴 Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.           | 🟢 0.4-0.7s  | Overtly strict Chinese censorship[^1] |
+| LLM  | OpenRouter   | 🔴 Qwen 3.5 Flash     | 🟢 $0.0001/prompt approx.           | 🟢 0.4-0.7s  | Good latency, but low intelligence    |
+| LLM  | ?            | 🔴 Qwen 3.5 4B        | 🟢 Very cheap                       | ❔(low)      | Not supported by OpenRouter           |
+| OCR  | OpenRouter   | 🟢 Gemini 3.1 Flash   | 🟢 $0.00031/img approx.             | 🔴 3-3.8s    | Didn't find a quicker in OpenRouter   |
+| TTS  | DeepInfra    | 🟢 Kokoro 82M         | 🟢 $0.7440/M chars                  | 🔴 1.5–2.5s  | No mid-sentence language switching    |
+| TTS  | SAPI5        | 🟠 Microsoft David    | 🔵 Free (local)                     | 🔵 instant   | Very fast, but robotic voice          |
+| TTS  | Async.com    | 🟢 Async Flash 1.0    | 🟠 $0.5/h                           | 🟢 0.6-0.7s  | Streamed response                     |
 
 </div>
+
+[^1]: Qwen running on Alibaba rejected a request briefly mentioning the Armenian genocide in the context of a non-related question [a band that brings attention to it](https://en.wikipedia.org/wiki/System_of_a_Down#Demo_tapes_and_signing_(1994%E2%80%931997)).
 
 *Info (especially pricing) may be inaccurate or outdated!*
 
